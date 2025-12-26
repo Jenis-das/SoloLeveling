@@ -48,10 +48,10 @@ tasks1 = {
     # Volatile (Increased or Decreased)
     "name" : "python Reading",
     "description" : "Python Reading networking",
-    "estimatedTime" : 2,
     "time": {
-        "startingTime": "",
-        "endingTime": ""
+        "fromTime": "",
+        "toTime": "",
+        "duration" : 2
     },
     "rewards" : {
         1: ""
@@ -180,52 +180,75 @@ class IDGenerator:
     
 
 class DayGenerator:
-    def __init__(self, day, date, quest = [], status = "pending", numberOfQuest = 1, meta = {}):
+    def __init__(self, day, date, quest = [], status = "pending", numberOfQuest = 0, meta = {}):
         self.day = day
         self.date = date
         self.quest = quest
         self.status = status 
         self.numberOfQuest = numberOfQuest
-        self.metaData = meta 
-
-
-    def questEditor():
-        
+        self.metaData = meta
 
 
 
-class CreateWholeTask:
+class QuestGenerator:
+    counter = 0
     def __init__(self):
         self.quest = {}
 
 
-    def createTask(self):
+    def createQuest(self):
         id_ = IDGenerator().generate()
-        obj = {"day" : "day " + str(id_), "date" : "date" + str(id_), "quest" : [], "status" : "pending"}
-        self.quest[id_] = obj
+        self.quest[id_] = DayGenerator("day" + str(id_), "date" + str(id_))
 
 
-    def addTask(self, id):
+    def addQuest(self, id):
         obj = CreateQuest()
-        quest_ = obj.CMD()
-        self.quest[id]["quest"].append(quest_)
+        # quest_ = obj.CMD()
+        quest_ = obj.ApiCreateQuest(tasks1)
+        data = self.quest[id].quest
+        data.append(quest_)
+        self.quest[id].numberOfQuest += 1
+
+
+    
+    
+    
+    def QuestEditor(self,id, questId, work = "update"):
+        day = self.quest[id]
+        questId -= 1
+        if work == "delete":
+            if day.numberOfQuest > 0 and day.numberOfQuest >= questId:
+                day.quest.pop(questId)
+                day.numberOfQuest = len(day.quest)
+                print("Deleted The Quest")
+                return True
+            else:
+                print("Couldnt Delete")
+                return False
+        elif work == "update":
+            if day.numberOfQuest > 0 and day.numberOfQuest >= questId:
+                day.quest[questId].QuestUpdaterCMD('description')
+                return True
+                    
+
+    
+    def showDayQuest(self, id):
+        # print(self.__dict__)
+        # print(self.quest[id])
+        print(self.quest[id].__dict__)
+
+        # pass
 
     
 
 
-obj = CreateWholeTask()
-obj2 = CreateQuest()
-for i in range(6):
-    obj.createTask()
+obj = QuestGenerator()
+for i in range(1, 7):
+    obj.createQuest()
     
-obj.addTask(1)    
-obj.addTask(2)    
-obj.addTask(2)    
-
-
-
-
-
-print(obj.quest)
-
+obj.createQuest()
+obj.addQuest(1)
+obj.QuestEditor(1, 1, "update")
+obj.showDayQuest(1)
+# obj.QuestEditor(1, 2, "delete")
 

@@ -1,3 +1,37 @@
+from datetime import datetime
+from SoloLevelingSystem import System
+
+
+
+
+tasks1 = {
+    # Volatile (Increased or Decreased)
+    "name" : "python Reading",
+    "description" : "Python Reading networking",
+    "time": {
+        "fromTime": "2:00 AM",
+        "toTime": "3:00 AM",
+        "duration" : None
+    },
+    "rewards" : {
+        1: ""
+    },
+    "penalty":{
+        1: ""
+    },
+    "stats":{
+        "memory_retention" : 1,
+        "discipline" : 1,
+        "skill": 1,
+        "fatigue": 20,
+        "xp": "random_E"
+    },
+    "status": "pending"
+    
+}
+
+
+
 
 # stats
 stats = {
@@ -37,29 +71,104 @@ penalty = {
 }
 
 class CreateQuest:
-    def __init__(self, name="", description="", time=None, estimatedTime="", rewards=None, penalty=None, stats=None):
+    def __init__(self, name="", description="", time={}, rewards=None, penalty=None, stats=None):
         self.name = name
         self.description = description
-        self.time = time if time else {}
-        self.estimatedTime = estimatedTime
+        self.time = {}
         self.rewards = rewards if rewards else {}
         self.penalty = penalty if penalty else {}
         self.stats = stats if stats else {}
         self.status = "pending"
 
 
+    def nam(self, name):
+        return name 
+
+    def desc(self, description):
+        # calc
+        return description
+
+    
+
+    def calcTime(self,fromTime=None, toTime=None, duration=None):
+        """
+        fromTime: str -> 'HH:MM' or 'HH:MM AM/PM'
+        toTime: str   -> 'HH:MM' or 'HH:MM AM/PM'
+        duration: int -> minutes
+        """
+
+        # print(fromTime, toTime)
+
+        result = {
+            "fromTime": fromTime,
+            "toTime": toTime,
+            "duration": None
+        }
+
+        # ---------- Case 1: fromTime & toTime ----------
+        if fromTime and toTime:
+            time_formats = ["%H:%M", "%I:%M %p"]  # 24h and AM/PM
+            start = end = None
+
+            # Try parsing fromTime
+            for fmt in time_formats:
+                try:
+                    start = datetime.strptime(fromTime.strip(), fmt)
+                    break
+                except ValueError:
+                    pass
+
+            if not start:
+                raise ValueError("Invalid fromTime format")
+
+            # Try parsing toTime
+            for fmt in time_formats:
+                try:
+                    end = datetime.strptime(toTime.strip(), fmt)
+                    break
+                except ValueError:
+                    pass
+
+            if not end:
+                raise ValueError("Invalid toTime format")
+
+            diff = (end - start).total_seconds() / 60
+
+            # ❌ No next-day allowed
+            if diff < 0:
+                raise ValueError("toTime must be after fromTime (next-day not allowed)")
+
+            result["duration"] = int(diff)
+            return result
+
+        # ---------- Case 2: duration only ----------
+        if duration is not None:
+            if not isinstance(duration, int) or duration <= 0:
+                raise ValueError("Duration must be a positive integer (minutes)")
+
+            result["duration"] = duration
+            return result
+
+        # ---------- Case 3: invalid ----------
+        raise ValueError("Provide either fromTime & toTime OR duration")
+
+
+
+    
 
     def CMD(self):
-        self.name = input("Task name : ")
-        self.description = input("Task Description : ")
-        y = input("To Include Time from Time and End Time Type Y else Any Key : ")
+        self.name = self.nam(input("Task name : "))
+        self.description = self.desc(input("Task Description : "))
+        
+        y = input("Enter Time : for From Time and End Time enter 'y' : ")
         if y.lower() == "y":
-            self.time = {
-                "startingTime": input("Quest Starting Time : "),
-                "endingTime": input("Quest Ending Time : ")
-        }
+            fromTime_ = input("Enter From Time, Time Should be in foramat HH:MM AM/PM: ") 
+            endTime_ = input("Enter To Time, Time Should be in foramat HH:MM AM/PM: ") 
+            self.calcTime(fromTime = fromTime_, toTime= endTime_)
         else:
-            self.estimatedTime = input("Estimated Time : ")
+            duration_ = System.roundInput(dataType="int",  message="Enter Duartion in minutes : ")
+            self.calcTime(duration = duration_) 
+    
         self.rewards = self.rewardsGenerator()
         self.penalty = self.penaltyGenerator()
         self.stats = self.statsGenerator()
@@ -69,21 +178,23 @@ class CreateQuest:
 
 
     def ApiCreateQuest(self, Quest):
-        try:
-            self.name = str(Quest["name"])
-            self.description = str(Quest["description"])
-            if Quest.get("time", {}).get("startingTime") and Quest.get("time", {}).get("endingTime"):
-                self.time = dict(Quest["time"])
-            else:
-                self.estimatedTime = str(Quest.get("estimatedTime", ""))
-            self.rewards = dict(Quest["rewards"])
-            self.penalty = dict(Quest["penalty"])
-            self.stats = dict(Quest["stats"])
-            self.status = str(Quest["status"])
-            return True
-        except Exception as e:
-            print(e)
-            return False
+        # try:
+        self.name = str(Quest["name"])
+        self.description = str(Quest["description"])
+        # print(Quest.get("fromTime",Quest.get("toTime")))
+        if Quest.get("time").get("fromTime") and Quest.get("time").get("toTime"):
+            self.time = self.calcTime(fromTime = Quest.get("time").get("fromTime"), toTime= Quest.get("time").get("toTime"))
+        else:
+            self.time = self.calcTime(duration=int(Quest.get("time").get("duration")))
+        self.rewards = dict(Quest["rewards"])
+        self.penalty = dict(Quest["penalty"])
+        self.stats = dict(Quest["stats"])
+        self.status = str(Quest["status"])
+        return self
+        # except Exception as e:
+            # raise Exception(e)
+            # print(e)
+            # return False
 
 
 
@@ -148,6 +259,21 @@ class CreateQuest:
                 print(e)
                 print("___Please Enter a Valid Number___")
 
+    def see(self):
+        print(self.__dict__)
+
+
+
+    def QuestUpdaterCMD(self, prop):
+        for key in self.__dict__:
+            if prop == key:
+                # is it possible to do polymorphishm here bacoze string cannot be callable 
+                # print("yes we can update here ")
+                
+                pass
+
+
+
     def ShowTask(self):
         print()
         print("----------------------------- QUEST CREATED -----------------------------")
@@ -155,11 +281,11 @@ class CreateQuest:
         print(f"- Description: {self.description}")
         print()
         print(f"- ------------------------------- Time ------------------------------- ")
-        if self.time.get("startingTime") and self.time.get("endingTime"):
-            print(f"- Start Time: ,{self.time.get('startingTime')}")
-            print(f"- End Time: {self.time.get('endingTime')}")
+        if self.time.get("fromTime") and self.time.get("toTime") and self.time.get("duration") == None:
+            print(f"- Start Time: ,{self.time.get('fromTime')} ")
+            print(f"- End Time: {self.time.get('toTime')}" )
         print()
-        print(f"- Estimated Time: {self.estimatedTime} hrs")
+        print(f"- Estimated Time: {self.time.get('duration')} Min")
         print()
         print(f"- -------- Rewards -------- ")
         for key in self.rewards:
@@ -178,3 +304,12 @@ class CreateQuest:
         print()
         print(f"- Status: {self.status}")
         print("-------------------------------------------------------------------------")
+
+
+
+# obj = CreateQuest()
+# print(obj.CMD())
+# obj.ApiCreateQuest(tasks1)
+# obj.ShowTask()
+# obj.see()
+
