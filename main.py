@@ -81,96 +81,6 @@ monday = {
 }
 
 
-
-
-
-
-
-
-
-
-# class createDays:
-#     def __init__(self):
-#         m = self.selectDays()
-#         self.date = m["date"]
-#         self.day = m["day"]
-#         self.quest = []
-#         self.status = "pending"
-
-
-#     def availDateAndDays(self):
-#         dates = []
-#         today = datetime.now().date()
-
-#         for i in range(7):  # today + next 6 days
-#             current_date = today + timedelta(days=i)
-#             dates.append({
-#                 "date": current_date.strftime("%Y-%m-%d"),
-#                 "day": current_date.strftime("%A"),
-#             })
-#         return dates
-
-
-
-#     def selectDays(self):
-#         datesAndDays = self.availDateAndDays()
-#         i = 0
-#         print("Select a Number for Day :")
-#         for items in datesAndDays:
-#             i += 1
-#             print(f"- {i} {items['day']}  &  {items['date']}  ")
-        
-        
-#         user = System.roundInput(dataType = "int", message = f"Enter a range from 1 to {i} ")
-#         i = 1
-#         for item in datesAndDays:
-#             if user == i:
-#                 print(f'{items["date"]} , {item["day"]}')
-#                 return {"day" : item["day"], "date" : item["date"]}
-#             i += 1
-#         print("Added Details")
-
-
-#     def createNewQuest(self):
-#         if self.quest != None:
-#             self.quest.append(CreateQuest().CMD())
-#             return self.quest
-#         else:
-#             w = []
-#             w.append(CreateQuest().CMD())
-#             return self.quest
-        
-#     def showWholeDayTask(self):
-#         print(self.__dict__)
-    
-    
-
-
-# # class Creator():
-# #     def __init__(self):
-# #         self.Quest = []
-# #         if self.Quest:
-# #             self.Quest.append(createDays())
-
-
-
-# # obj = CreateQuest()
-# # obj.ApiCreateQuest(tasks1)
-# # obj.CMD()
-# # obj.ShowTask()
-
-
-# obj = createDays()
-# while True:
-#     user = System.roundInput(dataType = "int", message="For Create Task Enter 1 : ")
-#     if user == 1:
-#         obj.createNewQuest()
-#         obj.showWholeDayTask()
-#     print(obj.__dict__)
-
-
-
-
 class IDGenerator:
     counter = 0
     @classmethod
@@ -233,8 +143,8 @@ class QuestGenerator:
 
     
     def showDayQuest(self, id):
-        # print(self.__dict__)
-        # print(self.quest[id])
+        print(self.__dict__)
+        print(self.quest[id])
         print(self.quest[id].__dict__)
 
         # pass
